@@ -375,7 +375,7 @@ def main(args: argparse.Namespace):
             num_requests=args.num_prompts,
             tokenizer=tokenizer,
         )
-    elif args.datasetname == "rag":
+    elif args.dataset_name == "rag":
         input_requests = prepare_rag_dataset(
             datafile=args.dataset_path,
             tokenizer_id=args.tokenizer_id,
