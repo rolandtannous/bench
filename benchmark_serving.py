@@ -378,10 +378,9 @@ def main(args: argparse.Namespace):
     elif args.dataset_name == "rag":
         input_requests = prepare_rag_dataset(
             datafile=args.dataset_path,
-            tokenizer_id=args.tokenizer_id,
+            tokenizer_id=args.tokenizer,
             num_prompts=args.num_prompts,
             rag_type=args.rag_type,
-            trust_remote_code=args.trust_remote_code,
         )
 
     elif args.dataset_name == "sharegpt":
