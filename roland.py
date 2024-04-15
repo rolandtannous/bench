@@ -80,8 +80,8 @@ def prepare_rag_dataset(
                 revised_dataset.append((prompts[i], prompt_token_ids[i], 500))
         elif rag_type == "medium":
             for i in range(len(dataset)-1):
-                revised_dataset.append(prompts[i]+prompts[i+1],prompt_token_ids[i]+prompt_token_ids[i+1],500)
-            revised_dataset.append(prompts[-1],prompt_token_ids[-1],500)
+                revised_dataset.append((prompts[i]+prompts[i+1],prompt_token_ids[i]+prompt_token_ids[i+1],500))
+            revised_dataset.append((prompts[-1],prompt_token_ids[-1],500))
         print(f"size of revised dataset is: {len(revised_dataset)}")
         for prompt, prompt_token_ids, completion_len in revised_dataset:
             prompt_len = len(prompt_token_ids)
