@@ -25,14 +25,14 @@ def construct_rag_prompt(conversations1, rag_type: str):
                 conversation += discussion["value"]
         conversation += "\nhuman:" + conversations1[6]["value"]
     elif rag_type == "medium":
-        for discussion in conversations1[0:30]:
+        for discussion in conversations1[0:20]:
             if discussion["from"] == "human":
                 conversation += "\n\nhuman:"
                 conversation += discussion["value"]
             else:
                 conversation += "\ngpt:"
                 conversation += discussion["value"]
-        conversation += "\nhuman:" + conversations1[30]["value"]
+        conversation += "\nhuman:" + conversations1[20]["value"]
     elif rag_type == "long":
         for discussion in conversations1[0:100]:
             if discussion["from"] == "human":
@@ -50,22 +50,24 @@ def prepare_rag_dataset(
     datafile: str, tokenizer_id: str, num_prompts: int, rag_type: str
 ):
     revised_dataset = []
+    combined_dataset = []
+    filtered_dataset: List[Tuple[str, int, int]] = []
     with open(datafile, "r") as inputfile:
         dataset = json.load(inputfile)
         # # print(type(dataset))
         if rag_type == "short":
             dataset = [data for data in dataset if len(data["conversations"]) > 6]
         elif rag_type == "medium":
-            dataset = [data for data in dataset if len(data["conversations"]) > 30]
+            dataset = [data for data in dataset if len(data["conversations"]) > 20]
         elif rag_type == "large":
             dataset = [data for data in dataset if len(data["conversations"]) > 99]
         dataset = [
             data for data in dataset if data["conversations"][0]["from"] == "human"
         ]
-        sample_indices = random.sample(
-            range(len(dataset)), 5000)
-        print(len(dataset))
-        dataset = [dataset[i] for i in sample_indices]
+        # sample_indices = random.sample(
+        #     range(len(dataset)), 5000)
+        # print(len(dataset))
+        # dataset = [dataset[i] for i in sample_indices]
         prompts = [
             construct_rag_prompt(data["conversations"], rag_type) for data in dataset
         ]
@@ -73,11 +75,14 @@ def prepare_rag_dataset(
             tokenizer_id, trust_remote_code=True
         )
         prompt_token_ids = tokenizer(prompts).input_ids
-        for i in range(len(dataset)):
-            revised_dataset.append((prompts[i], prompt_token_ids[i], 500))
-
-        filtered_dataset: List[Tuple[str, int, int]] = []
-        print(len(revised_dataset))
+        if rag_type == "short":
+            for i in range(len(dataset)):
+                revised_dataset.append((prompts[i], prompt_token_ids[i], 500))
+        elif rag_type == "medium":
+            for i in range(len(dataset)-1):
+                revised_dataset.append(prompts[i]+prompts[i+1],prompt_token_ids[i]+prompt_token_ids[i+1],500)
+            revised_dataset.append(prompts[-1],prompt_token_ids[-1],500)
+        print(f"size of revised dataset is: {len(revised_dataset)}")
         for prompt, prompt_token_ids, completion_len in revised_dataset:
             prompt_len = len(prompt_token_ids)
             if prompt_len < dataset_size[rag_type]:
@@ -85,7 +90,7 @@ def prepare_rag_dataset(
             filtered_dataset.append((prompt, prompt_len, completion_len))
         sample_indice = random.sample(range(len(filtered_dataset)),num_prompts)
         filtered_dataset = [filtered_dataset[i] for i in sample_indice]
-        print(len(filtered_dataset))
+        print(f"size of final filtered dataset: {len(filtered_dataset)}")
         return filtered_dataset
 
 
