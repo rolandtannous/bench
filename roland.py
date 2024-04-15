@@ -63,8 +63,7 @@ def prepare_rag_dataset(
             data for data in dataset if data["conversations"][0]["from"] == "human"
         ]
         sample_indices = random.sample(
-            range(len(dataset)), min(num_prompts * 4, len(dataset))
-        )
+            range(len(dataset)), 5000)
         print(len(dataset))
         dataset = [dataset[i] for i in sample_indices]
         prompts = [
@@ -84,6 +83,8 @@ def prepare_rag_dataset(
             if prompt_len < dataset_size[rag_type]:
                 continue
             filtered_dataset.append((prompt, prompt_len, completion_len))
+        sample_indice = random.sample(range(len(filtered_dataset)),num_prompts)
+        filtered_dataset = [filtered_dataset[i] for i in sample_indice]
         print(len(filtered_dataset))
         return filtered_dataset
 
