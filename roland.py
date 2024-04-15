@@ -47,7 +47,7 @@ def construct_rag_prompt(conversations1, rag_type: str):
 
 
 def prepare_rag_dataset(
-    datafile: str, tokenizer_id: str, num_prompts: int, rag_type: str, trust_remote_code
+    datafile: str, tokenizer_id: str, num_prompts: int, rag_type: str
 ):
     revised_dataset = []
     with open(datafile, "r") as inputfile:
@@ -71,7 +71,7 @@ def prepare_rag_dataset(
             construct_rag_prompt(data["conversations"], rag_type) for data in dataset
         ]
         tokenizer = get_tokenizer(
-            tokenizer_id, trust_remote_code=args.trust_remote_code
+            tokenizer_id, trust_remote_code=True
         )
         prompt_token_ids = tokenizer(prompts).input_ids
         for i in range(len(dataset)):
